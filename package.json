@@ -1,0 +1,23 @@
+{
+  "name": "pankuzu",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/halcat0x15a/pankuzu.git"
+  },
+  "author": "halcat0x15a",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/halcat0x15a/pankuzu/issues"
+  },
+  "homepage": "https://github.com/halcat0x15a/pankuzu#readme",
+  "devDependencies": {
+    "serve": "^11.3.2",
+    "typescript": "^4.1.3"
+  }
+}
