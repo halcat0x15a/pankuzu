@@ -63,25 +63,6 @@ function getCursorX(): number {
     return global.cursorX;
 }
 
-window.onmousemove = (e: MouseEvent) => {
-    const rect = canvas.getBoundingClientRect();
-    global.cursorX = e.pageX - rect.x;
-};
-
-window.onclick = (e: MouseEvent) => {
-    global.clicked = true;
-}
-
-window.ontouchstart = (e: TouchEvent) => {
-    const rect = canvas.getBoundingClientRect();
-    global.cursorX = e.changedTouches[e.changedTouches.length - 1].pageX - rect.x;
-}
-
-window.ontouchmove = (e: TouchEvent) => {
-    const rect = canvas.getBoundingClientRect();
-    global.cursorX = e.changedTouches[e.changedTouches.length - 1].pageX - rect.x;
-}
-
 const baseImage = new Image();
 const diffImage = new Image();
 const maskImage = new Image();
@@ -332,6 +313,25 @@ function getImageData(image: HTMLImageElement, width: number, height: number): I
 }
 
 const canvas = <HTMLCanvasElement>document.getElementById('canvas');
+
+canvas.onclick = (e: MouseEvent) => {
+    global.clicked = true;
+}
+
+window.onmousemove = (e: MouseEvent) => {
+    const rect = canvas.getBoundingClientRect();
+    global.cursorX = e.pageX - rect.x;
+};
+
+window.ontouchstart = (e: TouchEvent) => {
+    const rect = canvas.getBoundingClientRect();
+    global.cursorX = e.changedTouches[e.changedTouches.length - 1].pageX - rect.x;
+}
+
+window.ontouchmove = (e: TouchEvent) => {
+    const rect = canvas.getBoundingClientRect();
+    global.cursorX = e.changedTouches[e.changedTouches.length - 1].pageX - rect.x;
+}
 
 function main() {
     const barMargin = 100;
