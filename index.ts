@@ -34,6 +34,7 @@ interface State {
     miss: number;
     character: Character;
     scene: Scene;
+    isAnimation: boolean;
 }
 
 enum Scene {
@@ -147,12 +148,18 @@ function updateSceneGame(state: State): State {
         state.miss++;
     }
 
+    const rx = Math.cos(state.ball.angle / 180 * Math.PI);
+    const ry = Math.sin(state.ball.angle / 180 * Math.PI);
     for (let k in state.blocks) {
         const block = state.blocks[k];
         if (!!block) {
             if (intersects(block, state.ball)) {
                 state.blocks[k] = null;
-                state.ball.angle = 360 - state.ball.angle;
+                if (ry < rx) {
+                    state.ball.angle = 360 - state.ball.angle;
+                } else {
+                    state.ball.angle = 180 - state.ball.angle;
+                }
                 state.ball.speed += acceleration;
                 break;
             }
@@ -163,8 +170,8 @@ function updateSceneGame(state: State): State {
         state.character.image = diffImage;
     }
 
-    state.ball.x += Math.cos(state.ball.angle / 180 * Math.PI) * state.ball.speed;
-    state.ball.y += Math.sin(state.ball.angle / 180 * Math.PI) * state.ball.speed;
+    state.ball.x += rx * state.ball.speed;
+    state.ball.y += ry * state.ball.speed;
 
     if (state.blocks.every(b => b == null)) {
         state.scene = Scene.Clear;
@@ -181,7 +188,9 @@ function updateSceneClear(state: State): State {
 }
 
 function update(state: State): State {
-    state = animateCharacter(state);
+    if (state.isAnimation) {
+        state = animateCharacter(state);
+    }
     switch (state.scene) {
     case Scene.Start:
         return updateSceneStart(state);
@@ -333,7 +342,7 @@ window.ontouchmove = (e: TouchEvent) => {
     global.cursorX = e.changedTouches[e.changedTouches.length - 1].pageX - rect.x;
 }
 
-function main() {
+function main(isAnimation: boolean) {
     const barMargin = 100;
     const clientWidth = document.body.clientWidth;
     const clientHeight = document.body.clientHeight;
@@ -376,7 +385,8 @@ function main() {
         blocks: blocks,
         miss: 0,
         character: character,
-        scene: Scene.Start
+        scene: Scene.Start,
+        isAnimation: isAnimation
     }
     const ctx = canvas.getContext('2d');
     const now = performance.now();
@@ -385,18 +395,29 @@ function main() {
     }
 }
 
-const imageAndSrc: [HTMLImageElement, string][] = [
-    [baseImage, "./base.png"],
-    [diffImage, "./diff.png"],
-    [maskImage, "./mask.png"],
-    [clearImage, "./clear.png"],
-    [gameoverImage, "./gameover.png"]
-];
-
-imageAndSrc.reduce((f, [image, src]) => {
-    return () => {
-        console.log(src);
-        image.onload = () => f();
+function loadImage(image: HTMLImageElement, src: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+        image.onload = () => resolve();
+        image.onerror = e => reject(e);
         image.src = src;
-    }
-}, main)();
+    });
+}
+
+const stage = new URLSearchParams(location.search).get('s');
+if (stage === '2021') {
+    Promise.all([
+        loadImage(baseImage, "./2021/base.png"),
+        loadImage(diffImage, "./2021/diff.png"),
+        loadImage(maskImage, "./2021/mask.png"),
+        loadImage(clearImage, "./2021/clear.png"),
+        loadImage(gameoverImage, "./2021/clear.png")
+    ]).then(() => main(false));
+} else {
+    Promise.all([
+        loadImage(baseImage, "./base.png"),
+        loadImage(diffImage, "./diff.png"),
+        loadImage(maskImage, "./mask.png"),
+        loadImage(clearImage, "./clear.png"),
+        loadImage(gameoverImage, "./gameover.png")
+    ]).then(() => main(true));
+}
